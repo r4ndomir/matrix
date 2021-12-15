@@ -75,6 +75,7 @@ const defaults = {
 	slant: 0, // The angle at which rain falls; the orientation of the glyph grid
 	resolution: 1, // An overall scale multiplier
 	useHalfFloat: false,
+	renderer: "webgpu", // The preferred web graphics API
 };
 
 const versions = {
@@ -204,6 +205,30 @@ const versions = {
 			{ hsl: [0.15, 1.0, 0.6], at: 0.8 },
 			{ hsl: [0.1, 1.0, 0.9], at: 1.0 },
 		],
+	},
+
+	holoplay: {
+		...defaults,
+		...fonts.resurrections,
+		numColumns: 40,
+		fallSpeed: 0.35,
+		cycleStyle: "cycleRandomly",
+		cycleSpeed: 0.8,
+		glyphEdgeCrop: 0.1,
+		paletteEntries: [
+			{ hsl: [0.39, 0.9, 0.0], at: 0.0 },
+			{ hsl: [0.39, 1.0, 0.6], at: 0.5 },
+			{ hsl: [0.39, 1.0, 1.0], at: 1.0 },
+		],
+		raindropLength: 1.4,
+		highPassThreshold: 0.2,
+		cursorEffectThreshold: 0.8,
+
+		renderer: "regl",
+		bloomSize: 0,
+		volumetric: true,
+		forwardSpeed: 0,
+		density: 3,
 	},
 };
 versions.throwback = versions.operator;
