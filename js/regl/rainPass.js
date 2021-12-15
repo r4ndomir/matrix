@@ -185,10 +185,10 @@ export default ({ regl, config, lkg }) => {
 					mat4.ortho(camera, -1.5, 1.5, -1.5 / aspectRatio, 1.5 / aspectRatio, -1000, 1000);
 				}
 			} else {
-				const tileSize = [w / lkg.tilesX, h / lkg.tilesY];
+				const tileSize = [Math.floor(w /*lkg.quiltResolution*/ / lkg.tileCount[0]), Math.floor(h /*lkg.quiltResolution*/ / lkg.tileCount[1])];
 				vantagePoints.length = 0;
-				for (let row = 0; row < lkg.tilesY; row++) {
-					for (let column = 0; column < lkg.tilesX; column++) {
+				for (let row = 0; row < lkg.tileCount[1]; row++) {
+					for (let column = 0; column < lkg.tileCount[0]; column++) {
 						const camera = mat4.create();
 						mat4.perspective(camera, (Math.PI / 180) * 90, aspectRatio, 0.0001, 1000);
 

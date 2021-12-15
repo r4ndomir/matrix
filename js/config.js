@@ -272,6 +272,7 @@ const paramMapping = {
 	stripeColors: { key: "stripeColors", parser: (s) => s },
 	backgroundColor: { key: "backgroundColor", parser: (s) => s.split(",").map(parseFloat) },
 	volumetric: { key: "volumetric", parser: (s) => s.toLowerCase().includes("true") },
+	renderer: { key: "renderer", parser: (s) => s },
 };
 paramMapping.dropLength = paramMapping.raindropLength;
 paramMapping.angle = paramMapping.slant;

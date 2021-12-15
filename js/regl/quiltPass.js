@@ -3,6 +3,14 @@ import { loadImage, loadText, makePassFBO, makePass } from "./utils.js";
 // Multiplies the rendered rain and bloom by a loaded in image
 
 export default ({ regl, config, lkg }, inputs) => {
+	const enabled = lkg.tileCount[0] * lkg.tileCount[1] > 1;
+
+	if (!enabled) {
+		return makePass({
+			primary: inputs.primary,
+		});
+	}
+
 	const output = makePassFBO(regl, config.useHalfFloat);
 	const quiltPassFrag = loadText("shaders/glsl/quiltPass.frag.glsl");
 	const render = regl({

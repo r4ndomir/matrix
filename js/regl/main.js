@@ -34,23 +34,6 @@ const loadJS = (src) =>
 		document.body.appendChild(tag);
 	});
 
-const defaultCalibration = {
-	configVersion: "1.0",
-	serial: "00000",
-	pitch: 47.556365966796878,
-	slope: -5.488804340362549,
-	center: 0.15815216302871705,
-	viewCone: 40.0,
-	invView: 1.0,
-	verticalAngle: 0.0,
-	DPI: 338.0,
-	screenW: 2560.0,
-	screenH: 1600.0,
-	flipImageX: 0.0,
-	flipImageY: 0.0,
-	flipSubp: 0.0,
-};
-
 export default async (canvas, config) => {
 	await Promise.all([loadJS("lib/regl.js"), loadJS("lib/gl-matrix.js")]);
 
@@ -70,9 +53,30 @@ export default async (canvas, config) => {
 
 	const lkg = await new Promise((resolve, reject) => {
 		const client = new HoloPlayCore.Client((data) => {
+			if (data.devices.length === 0) {
+				resolve({ tileCount: [1, 1] });
+			}
+
 			// TODO: get these from device
 			const quiltResolution = 3360;
 			const tileCount = [8, 6];
+
+			const defaultCalibration = {
+				configVersion: "1.0",
+				serial: "00000",
+				pitch: 47.556365966796878,
+				slope: -5.488804340362549,
+				center: 0.15815216302871705,
+				viewCone: 40.0,
+				invView: 1.0,
+				verticalAngle: 0.0,
+				DPI: 338.0,
+				screenW: 2560.0,
+				screenH: 1600.0,
+				flipImageX: 0.0,
+				flipImageY: 0.0,
+				flipSubp: 0.0,
+			};
 
 			const calibration = data.devices?.[0]?.calibration ?? defaultCalibration;
 
@@ -96,9 +100,8 @@ export default async (canvas, config) => {
 				flipX: flipImageX,
 				flipY: flipImageY,
 				subp: 1 / (screenW * 3),
-				tilesX: tileCount[0],
-				tilesY: tileCount[1],
-
+				quiltResolution,
+				tileCount,
 				quiltViewPortion: [
 					(Math.floor(quiltResolution / tileCount[0]) * tileCount[0]) / quiltResolution,
 					(Math.floor(quiltResolution / tileCount[1]) * tileCount[1]) / quiltResolution,

@@ -7,15 +7,14 @@ uniform float invView;
 uniform float flipX;
 uniform float flipY;
 uniform float subp;
-uniform float tilesX;
-uniform float tilesY;
+uniform vec2 tileCount;
 uniform vec2 quiltViewPortion;
 varying vec2 vUV;
 
 vec2 texArr(vec3 uvz) {
-  float z = floor(uvz.z * tilesX * tilesY);
-  float x = (mod(z, tilesX) + uvz.x) / tilesX;
-  float y = (floor(z / tilesX) + uvz.y) / tilesY;
+  float z = floor(uvz.z * tileCount.x * tileCount.y);
+  float x = (mod(z, tileCount.x) + uvz.x) / tileCount.x;
+  float y = (floor(z / tileCount.x) + uvz.y) / tileCount.y;
   return vec2(x, y) * quiltViewPortion;
 }
 
