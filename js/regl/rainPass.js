@@ -19,7 +19,7 @@ const blVert = [1, 0];
 const brVert = [1, 1];
 const quadVertices = [tlVert, trVert, brVert, tlVert, brVert, blVert];
 
-export default ({ regl, config }) => {
+export default ({ regl, config, lkg }) => {
 	// The volumetric mode multiplies the number of columns
 	// to reach the desired density, and then overlaps them
 	const volumetric = config.volumetric;
@@ -143,6 +143,8 @@ export default ({ regl, config }) => {
 			screenSize: regl.prop("screenSize"),
 		},
 
+		viewport: regl.prop("viewport"),
+
 		attributes: {
 			aPosition: quadPositions,
 			aCorner: Array(numQuads).fill(quadVertices),
@@ -166,6 +168,8 @@ export default ({ regl, config }) => {
 	}
 	const camera = mat4.create();
 
+	const vantagePoints = [];
+
 	return makePass(
 		{
 			primary: output,
@@ -181,7 +185,22 @@ export default ({ regl, config }) => {
 					mat4.ortho(camera, -1.5, 1.5, -1.5 / aspectRatio, 1.5 / aspectRatio, -1000, 1000);
 				}
 			} else {
-				mat4.perspective(camera, (Math.PI / 180) * 90, aspectRatio, 0.0001, 1000);
+				const tileSize = [w / lkg.tilesX, h / lkg.tilesY];
+				vantagePoints.length = 0;
+				for (let row = 0; row < lkg.tilesY; row++) {
+					for (let column = 0; column < lkg.tilesX; column++) {
+						const camera = mat4.create();
+						mat4.perspective(camera, (Math.PI / 180) * 90, aspectRatio, 0.0001, 1000);
+
+						const viewport = {
+							x: column * tileSize[0],
+							y: row * tileSize[1],
+							width: tileSize[0],
+							height: tileSize[1],
+						};
+						vantagePoints.push({ camera, viewport });
+					}
+				}
 			}
 			[screenSize[0], screenSize[1]] = aspectRatio > 1 ? [1, aspectRatio] : [1 / aspectRatio, 1];
 		},
@@ -192,7 +211,9 @@ export default ({ regl, config }) => {
 				color: [0, 0, 0, 1],
 				framebuffer: output,
 			});
-			render({ camera, transform, screenSize, vert: rainPassVert.text(), frag: rainPassFrag.text() });
+			for (const vantagePoint of vantagePoints) {
+				render({ ...vantagePoint, transform, screenSize, vert: rainPassVert.text(), frag: rainPassFrag.text() });
+			}
 		}
 	);
 };

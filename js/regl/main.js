@@ -6,6 +6,9 @@ import makePalettePass from "./palettePass.js";
 import makeStripePass from "./stripePass.js";
 import makeImagePass from "./imagePass.js";
 import makeResurrectionPass from "./resurrectionPass.js";
+import makeQuiltPass from "./quiltPass.js";
+
+import * as HoloPlayCore from "../../lib/holoplaycore.module.js";
 
 const effects = {
 	none: null,
@@ -31,6 +34,23 @@ const loadJS = (src) =>
 		document.body.appendChild(tag);
 	});
 
+const defaultCalibration = {
+	configVersion: "1.0",
+	serial: "00000",
+	pitch: 47.556365966796878,
+	slope: -5.488804340362549,
+	center: 0.15815216302871705,
+	viewCone: 40.0,
+	invView: 1.0,
+	verticalAngle: 0.0,
+	DPI: 338.0,
+	screenW: 2560.0,
+	screenH: 1600.0,
+	flipImageX: 0.0,
+	flipImageY: 0.0,
+	flipSubp: 0.0,
+};
+
 export default async (canvas, config) => {
 	await Promise.all([loadJS("lib/regl.js"), loadJS("lib/gl-matrix.js")]);
 
@@ -48,10 +68,49 @@ export default async (canvas, config) => {
 		optionalExtensions: ["EXT_color_buffer_half_float", "WEBGL_color_buffer_float", "OES_standard_derivatives"],
 	});
 
+	const lkg = await new Promise((resolve, reject) => {
+		const client = new HoloPlayCore.Client((data) => {
+			// TODO: get these from device
+			const quiltResolution = 3360;
+			const tileCount = [8, 6];
+
+			const calibration = data.devices?.[0]?.calibration ?? defaultCalibration;
+
+			const screenInches = calibration.screenW / calibration.DPI;
+
+			let pitch = calibration.pitch * screenInches;
+			pitch *= Math.cos(Math.atan(1.0 / calibration.slope));
+
+			let tilt = calibration.screenH / (calibration.screenW * calibration.slope);
+			if (calibration.flipImageX == 1) {
+				tilt *= -1;
+			}
+
+			const { center, invView, flipImageX, flipImageY, screenW } = calibration;
+
+			resolve({
+				pitch,
+				tilt,
+				center,
+				invView,
+				flipX: flipImageX,
+				flipY: flipImageY,
+				subp: 1 / (screenW * 3),
+				tilesX: tileCount[0],
+				tilesY: tileCount[1],
+
+				quiltViewPortion: [
+					(Math.floor(quiltResolution / tileCount[0]) * tileCount[0]) / quiltResolution,
+					(Math.floor(quiltResolution / tileCount[1]) * tileCount[1]) / quiltResolution,
+				],
+			});
+		}, reject);
+	});
+
 	// All this takes place in a full screen quad.
 	const fullScreenQuad = makeFullScreenQuad(regl);
 	const effectName = config.effect in effects ? config.effect : "plain";
-	const pipeline = makePipeline({ regl, config }, [makeRain, makeBloomPass, effects[effectName]]);
+	const pipeline = makePipeline({ regl, config, lkg }, [makeRain, makeBloomPass, effects[effectName], makeQuiltPass]);
 	const screenUniforms = { tex: pipeline[pipeline.length - 1].outputs.primary };
 	const drawToScreen = regl({ uniforms: screenUniforms });
 	await Promise.all(pipeline.map((step) => step.ready));
