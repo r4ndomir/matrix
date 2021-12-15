@@ -54,14 +54,50 @@ export default async (canvas, config) => {
 	const lkg = await new Promise((resolve, reject) => {
 		const client = new HoloPlayCore.Client((data) => {
 			if (data.devices.length === 0) {
-				resolve({ tileCount: [1, 1] });
+				resolve({ tileCount: [1, 1], fov: 90 });
 			}
 
-			// TODO: get these from device
-			const quiltResolution = 3360;
-			const tileCount = [8, 6];
+			const idealProperties = {
+				standard: {
+					quiltResolution: 4096,
+					tileCount: [5, 9],
+					viewCone: 35,
+					fov: 12.5,
+				},
+				large: {
+					quiltResolution: 4096,
+					tileCount: [5, 9],
+					viewCone: 35,
+					fov: 12.5,
+				},
+				pro: {
+					quiltResolution: 4096,
+					tileCount: [5, 9],
+					viewCone: 35,
+					fov: 12.5,
+				},
+				["8k"]: {
+					quiltResolution: 8192,
+					tileCount: [5, 9],
+					viewCone: 35,
+					fov: 12.5,
+				},
+				default: {
+					quiltResolution: 2048,
+					tileCount: [4, 8],
+					viewCone: 35,
+					fov: 12.5,
+				},
+				// TODO: portrait seems to be missing?
+			};
 
-			const defaultCalibration = {
+			const {quiltResolution, tileCount, viewCone, fov} = idealProperties[data.hardwareVersion] ?? idealProperties.default;
+
+			// TODO: get these from device
+			// const quiltResolution = 3360;
+			// const tileCount = [8, 6];
+
+			const calibration = data.devices?.[0]?.calibration ?? {
 				configVersion: "1.0",
 				serial: "00000",
 				pitch: 47.556365966796878,
@@ -78,8 +114,6 @@ export default async (canvas, config) => {
 				flipSubp: 0.0,
 			};
 
-			const calibration = data.devices?.[0]?.calibration ?? defaultCalibration;
-
 			const screenInches = calibration.screenW / calibration.DPI;
 
 			let pitch = calibration.pitch * screenInches;
@@ -90,22 +124,28 @@ export default async (canvas, config) => {
 				tilt *= -1;
 			}
 
-			const { center, invView, flipImageX, flipImageY, screenW } = calibration;
+			const { center, invView, flipImageX, flipImageY } = calibration;
+
+			const subp = 1 / (calibration.screenW * 3);
+
+			const quiltViewPortion = [
+				(Math.floor(quiltResolution / tileCount[0]) * tileCount[0]) / quiltResolution,
+				(Math.floor(quiltResolution / tileCount[1]) * tileCount[1]) / quiltResolution,
+			];
 
 			resolve({
 				pitch,
 				tilt,
 				center,
 				invView,
-				flipX: flipImageX,
-				flipY: flipImageY,
-				subp: 1 / (screenW * 3),
+				flipImageX,
+				flipImageY,
+				subp,
 				quiltResolution,
 				tileCount,
-				quiltViewPortion: [
-					(Math.floor(quiltResolution / tileCount[0]) * tileCount[0]) / quiltResolution,
-					(Math.floor(quiltResolution / tileCount[1]) * tileCount[1]) / quiltResolution,
-				],
+				viewCone,
+				fov,
+				quiltViewPortion,
 			});
 		}, reject);
 	});

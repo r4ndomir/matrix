@@ -4,8 +4,8 @@ uniform float pitch;
 uniform float tilt;
 uniform float center;
 uniform float invView;
-uniform float flipX;
-uniform float flipY;
+uniform float flipImageX;
+uniform float flipImageY;
 uniform float subp;
 uniform vec2 tileCount;
 uniform vec2 quiltViewPortion;
@@ -27,8 +27,8 @@ void main() {
   vec3 nuv = vec3(vUV.xy, 0.0);
 
   // Flip UVs if necessary
-  nuv.x = (1.0 - flipX) * nuv.x + flipX * (1.0 - nuv.x);
-  nuv.y = (1.0 - flipY) * nuv.y + flipY * (1.0 - nuv.y);
+  nuv.x = (1.0 - flipImageX) * nuv.x + flipImageX * (1.0 - nuv.x);
+  nuv.y = (1.0 - flipImageY) * nuv.y + flipImageY * (1.0 - nuv.y);
 
   for (int i = 0; i < 3; i++) {
     nuv.z = (vUV.x + float(i) * subp + vUV.y * tilt) * pitch - center;

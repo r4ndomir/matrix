@@ -178,28 +178,32 @@ export default ({ regl, config, lkg }) => {
 		(w, h) => {
 			output.resize(w, h);
 			const aspectRatio = w / h;
-			if (config.effect === "none") {
-				if (aspectRatio > 1) {
-					mat4.ortho(camera, -1.5 * aspectRatio, 1.5 * aspectRatio, -1.5, 1.5, -1000, 1000);
-				} else {
-					mat4.ortho(camera, -1.5, 1.5, -1.5 / aspectRatio, 1.5 / aspectRatio, -1000, 1000);
-				}
-			} else {
-				const tileSize = [Math.floor(w /*lkg.quiltResolution*/ / lkg.tileCount[0]), Math.floor(h /*lkg.quiltResolution*/ / lkg.tileCount[1])];
-				vantagePoints.length = 0;
-				for (let row = 0; row < lkg.tileCount[1]; row++) {
-					for (let column = 0; column < lkg.tileCount[0]; column++) {
-						const camera = mat4.create();
+			const tileSize = [Math.floor(w /*lkg.quiltResolution*/ / lkg.tileCount[0]), Math.floor(h /*lkg.quiltResolution*/ / lkg.tileCount[1])];
+			vantagePoints.length = 0;
+			for (let row = 0; row < lkg.tileCount[1]; row++) {
+				for (let column = 0; column < lkg.tileCount[0]; column++) {
+
+					const camera = mat4.create();
+
+					if (config.effect === "none") {
+						if (aspectRatio > 1) {
+							mat4.ortho(camera, -1.5 * aspectRatio, 1.5 * aspectRatio, -1.5, 1.5, -1000, 1000);
+						} else {
+							mat4.ortho(camera, -1.5, 1.5, -1.5 / aspectRatio, 1.5 / aspectRatio, -1000, 1000);
+						}
+					} else {
 						mat4.perspective(camera, (Math.PI / 180) * 90, aspectRatio, 0.0001, 1000);
 
-						const viewport = {
-							x: column * tileSize[0],
-							y: row * tileSize[1],
-							width: tileSize[0],
-							height: tileSize[1],
-						};
-						vantagePoints.push({ camera, viewport });
+
 					}
+
+					const viewport = {
+						x: column * tileSize[0],
+						y: row * tileSize[1],
+						width: tileSize[0],
+						height: tileSize[1],
+					};
+					vantagePoints.push({ camera, viewport });
 				}
 			}
 			[screenSize[0], screenSize[1]] = aspectRatio > 1 ? [1, aspectRatio] : [1 / aspectRatio, 1];
