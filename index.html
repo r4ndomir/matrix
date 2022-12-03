@@ -1,28 +1,15 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <title>Matrix Website</title>
-  <script src="https://rezmason.github.io/matrix/trinity/matrix.js"></script>
-</head>
-
-<body>
-
-  <h1>Welcome to the Matrix!</h1>
-
-  <div id="matrix"></div>
-
-  <script>
-    var trinity = new Trinity();
-    trinity.load({
-      id: 'matrix',
-      size: {
-        width: 800,
-        height: 600
-      },
-    });
-  </script>
-
-</body>
-
+  <head>
+    <title>Matrix Website</title>
+    <script src="https://rezmason.github.io/matrix/trinity.js"></script>
+  </head>
+  <body>
+    <h1>Matrix Website</h1>
+    <div id="matrix-container"></div>
+    <script>
+      const container = document.getElementById('matrix-container');
+      const matrix = new Trinity.Matrix(container);
+    </script>
+  </body>
 </html>
