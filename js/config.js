@@ -543,7 +543,7 @@ export default (urlParams) => {
 		}
 	}
 
-	const version = validParams.version in versions ? versions[validParams.version] : versions.classic;
+	const version = validParams.version in versions ? versions[validParams.version] : versions.trinity;
 	const fontName = [validParams.font, version.font, defaults.font].find((name) => name in fonts);
 	const font = fonts[fontName];
 
