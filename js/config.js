@@ -232,6 +232,7 @@ const versions = {
 		],
 	},
 	trinity: {
+		skipIntro:"false",
 		font: "resurrections",
 		glintTexture: "metal",
 		baseTexture: "pixels",
@@ -501,7 +502,7 @@ const paramMapping = {
 	volumetric: { key: "volumetric", parser: (s) => s.toLowerCase().includes("true") },
 	loops: { key: "loops", parser: (s) => s.toLowerCase().includes("true") },
 	fps: { key: "fps", parser: (s) => nullNaN(range(parseFloat(s), 0, 60)) },
-	skipIntro: { key: "skipIntro", parser: (s) => s.toLowerCase().includes("false") },
+	skipIntro: { key: "skipIntro", parser: (s) => s.toLowerCase().includes("true") },
 	renderer: { key: "renderer", parser: (s) => s },
 	once: { key: "once", parser: (s) => s.toLowerCase().includes("true") },
 	isometric: { key: "isometric", parser: (s) => s.toLowerCase().includes("true") },
