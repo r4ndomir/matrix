@@ -124,7 +124,7 @@ const defaults = {
 	isometric: false,
 	useHoloplay: false,
 	loops: false,
-	skipIntro: true,
+	skipIntro: false,
 	testFix: null,
 };
 
@@ -232,7 +232,6 @@ const versions = {
 		],
 	},
 	trinity: {
-		skipIntro:"false",
 		font: "resurrections",
 		glintTexture: "metal",
 		baseTexture: "pixels",
